@@ -6,25 +6,35 @@ opponent = ".";     #will get changed
 neutral = ".";
 
 #MIN_MAX functions
-def minmax(move_list, depth, board_state):
-    #get the possible moves that can be made
-    #for each of these move calculate the value
-    #find the max among these values
-    max_val(move_list, depth, board_state)
+def minimax(board_state, depth):
+    #let's start the recursion for the moves ;)
+    best_move = maxi(board_state, depth)
+    return best_move
 
-    print("TO-DO");
+def maxi(board_state, depth):
+    poss_moves = find_possible_moves(board_state)
+    vals=[]
+    for move in poss_moves:
+        new_board = update_board(move, board_state);
+        get_board_state(new_board)
+        vals.append(get_game_val(new_board))
+        if (depth==0):
+            return poss_moves[vals.index(max(vals))]
+        else:
+            return mini(new_board, depth-1)
 
 
-def min_val(move_list, depth):
-    #return the min of all the values given
-    print("Will return the min value");
-
-
-def max_val(move_list, depth, board_state):
-    #return the max of the values given
-    index = move_list.index()
-    print("Will return the max value")
-
+def mini(board_state, depth):
+    poss_moves = find_possible_moves(board_state)
+    vals = []
+    for move in poss_moves:
+        new_board = update_board(move, board_state);
+        get_board_state(new_board)
+        vals.append(get_game_val(new_board))
+        if (depth == 0):
+            return poss_moves[vals.index(min(vals))]
+        else:
+            return mini(new_board, depth - 1)
 
 #Alpha-beta functions
 def alphabeta():
@@ -49,6 +59,21 @@ def get_pos_value(pos):
     return total_val;
 
 
+def get_game_val(board_state):
+    # value of player - value of opponent
+    global play_symbol
+    global opponent
+    player_val = 0
+    opponent_val = 0
+    for x in range(n):
+        for y in range(n):
+            if board_state[x][y] == play_symbol:
+                player_val += value_mat[x][y];
+            elif board_state[x][y] == opponent:
+                opponent_val += value_mat[x][y]
+    return player_val-opponent_val
+
+
 def get_neighbours(pos):
     x, y = pos_to_index(pos);
     neighbours = [];
@@ -64,14 +89,14 @@ def get_neighbours(pos):
 
 
 #finds the possible places for next move
-def find_possible_moves():
+def find_possible_moves(board_state):
     global play_symbol;
     global n;
     next_possible_moves = [];
     print("player will play as " + play_symbol);
     for x in range(n):
         for y in range(n):
-            if board_mat[x][y]==".":
+            if board_state[x][y]==".":
                 next_possible_moves.append(index_to_pos(x,y));
     return next_possible_moves;
 
@@ -127,7 +152,7 @@ def analyse(lines):
         #print();
 
     #print("Board state is: ");
-    board_mat = [[None]*5 for _ in range(n)];
+    board_mat = [[None]*n for _ in range(n)];
     for i in range(n):
         vals = list(lines[4 + n + i]);
         for j in range(n):
@@ -145,12 +170,12 @@ def get_board_value():
         print();
 
 
-def get_board_state():
+def get_board_state(board_state):
     global n;
     global board_mat;
     for i in range(n):
         for j in range(n):
-            print(board_mat[i][j], end="\t");
+            print(board_state[i][j], end="\t");
         print();
 
 
@@ -159,7 +184,7 @@ def read_input(file):
     read_line = fread.readlines();
     try:
         analyse(read_line);
-        get_board_state();
+        get_board_state(board_mat);
         get_board_value();
     except:
         print("***Invalid file stucture");
@@ -169,33 +194,19 @@ def read_input(file):
     fwrt = open("output.txt", 'w');
     fwrt.write(line);
 
-def update_board(best_move, board_state):
-    x,y = pos_to_index(best_move);
-    board_mat[x][y] = play_symbol;
-    neighbours = get_neighbours(best_move);
+def update_board(move, board_state):
+    x,y = pos_to_index(move);
+    board_state[x][y] = play_symbol;
+    neighbours = get_neighbours(move);
     for s in neighbours:
         # print(index_to_pos(s[0],s[1]), value_mat[s[0]][s[1]]);
-        if (board_mat[s[0]][s[1]] == opponent):
-            board_mat[s[0]][s[1]] = play_symbol;
-
+        if (board_state[s[0]][s[1]] == opponent):
+            board_state[s[0]][s[1]] = play_symbol;
+    return board_state;
 
 
 #start of main method
 read_input("input.txt");
-possible_moves = find_possible_moves();
-best_move = minmax(possible_moves);
-print("best move is " , best_move);
-print(get_pos_value(best_move));
-update_board(best_move);
-get_board_state();
-"""
-vals = [];
-for p in possible_moves:
-    print(p);
-    vals.append(get_pos_value(p));
-    ind = vals.index(max(vals));
-    max_val = max(vals);
-    print(max_val, " is the max value and at index ", ind, " out of ", len(vals), " positions");
-    print();
-"""
+best_move = minimax(board_mat, 0)
+print("Best move is ", best_move)
 print("Done!");
