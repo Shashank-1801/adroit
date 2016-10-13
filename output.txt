@@ -1,9 +1,4 @@
-add something here
-2
-MINIMAX
-O
-2
-1 8
-5 42
-X.
-..
+B3 Stake
+X..
+...
+.O.
