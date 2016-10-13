@@ -1,6 +1,7 @@
 value_mat = []
 board_mat = []
 n = 0
+depth = 0
 play_symbol = ".";  #will get changed
 opponent = ".";     #will get changed
 neutral = ".";
@@ -12,33 +13,46 @@ def minimax(board_state, depth):
     return best_move
 
 def maxi(board_state, depth):
-    poss_moves = find_possible_moves(board_state)
+    poss_moves = find_possible_moves(board_state, play_symbol)
+    my_board = duplicate_board_state(board_state)
     vals=[]
+    new_board_states = []
     for move in poss_moves:
-        new_board = update_board(move, board_state);
-        get_board_state(new_board)
+        new_board = update_board(move, my_board, play_symbol);
         vals.append(get_game_val(new_board))
-        if (depth==0):
-            return poss_moves[vals.index(max(vals))]
-        else:
+        new_board_states.append(update_board(move, my_board, play_symbol))
+    if (depth==0):
+        return poss_moves[vals.index(max(vals))]
+    else:
+        for n_board in new_board_states:
             return mini(new_board, depth-1)
 
 
 def mini(board_state, depth):
-    poss_moves = find_possible_moves(board_state)
+    poss_moves = find_possible_moves(board_state, opponent)
+    my_board = duplicate_board_state(board_state)
     vals = []
+    new_board_states = []
     for move in poss_moves:
-        new_board = update_board(move, board_state);
-        get_board_state(new_board)
+        new_board = update_board(move, my_board, play_symbol);
         vals.append(get_game_val(new_board))
-        if (depth == 0):
-            return poss_moves[vals.index(min(vals))]
-        else:
-            return mini(new_board, depth - 1)
+        new_board_states.append(update_board(move, my_board, opponent))
+    if (depth == 0):
+        return poss_moves[vals.index(min(vals))]
+    else:
+        return maxi(new_board, depth - 1)
 
 #Alpha-beta functions
 def alphabeta():
     print("TO-DO");
+
+
+def duplicate_board_state(board_state):
+    new_board = [[None]*n for _ in range(n)]
+    for x in range(n):
+        for y in range(n):
+            new_board[x][y] = board_state[x][y]
+    return new_board
 
 def get_val_list(pos_list):
     vals_for_pos_list = [];
@@ -89,11 +103,11 @@ def get_neighbours(pos):
 
 
 #finds the possible places for next move
-def find_possible_moves(board_state):
+def find_possible_moves(board_state, player_symbol):
     global play_symbol;
     global n;
     next_possible_moves = [];
-    print("player will play as " + play_symbol);
+    print("player will play as " + player_symbol);
     for x in range(n):
         for y in range(n):
             if board_state[x][y]==".":
@@ -117,6 +131,7 @@ def index_to_pos(x, y):     #x=1 => 2  , y=2 => C
 #sets the values in the board
 def analyse(lines):
     global n;
+    global depth;
     global play_symbol;
     global opponent;
     global board_mat;
@@ -140,7 +155,7 @@ def analyse(lines):
         opponent = "O";
     else:
         opponent = "X";
-    depth = str(lines[3]).strip("\n");
+    depth = int(str(lines[3]).strip("\n"))
     print("depth of search is ", depth);
     #print("Cell values are: ");
     value_mat = [[None]*n for _ in range(n)];
@@ -170,9 +185,8 @@ def get_board_value():
         print();
 
 
-def get_board_state(board_state):
+def print_board_state(board_state):
     global n;
-    global board_mat;
     for i in range(n):
         for j in range(n):
             print(board_state[i][j], end="\t");
@@ -184,7 +198,7 @@ def read_input(file):
     read_line = fread.readlines();
     try:
         analyse(read_line);
-        get_board_state(board_mat);
+        print_board_state(board_mat);
         get_board_value();
     except:
         print("***Invalid file stucture");
@@ -194,19 +208,31 @@ def read_input(file):
     fwrt = open("output.txt", 'w');
     fwrt.write(line);
 
-def update_board(move, board_state):
+def update_board(move, board_state, player_symbol):
+    new_state = duplicate_board_state(board_state)
+    if(player_symbol == play_symbol):
+        other = opponent
+    elif player_symbol == opponent:
+        other = play_symbol
     x,y = pos_to_index(move);
-    board_state[x][y] = play_symbol;
+    new_state[x][y] = player_symbol;
     neighbours = get_neighbours(move);
+    raid = False
     for s in neighbours:
-        # print(index_to_pos(s[0],s[1]), value_mat[s[0]][s[1]]);
-        if (board_state[s[0]][s[1]] == opponent):
-            board_state[s[0]][s[1]] = play_symbol;
-    return board_state;
+        if new_state[s[0]][s[1]] == player_symbol:
+            raid = True
+            break;
+    if raid == True:
+        for s in neighbours:
+            # print(index_to_pos(s[0],s[1]), value_mat[s[0]][s[1]]);
+            if (new_state[s[0]][s[1]] == other):
+                new_state[s[0]][s[1]] = player_symbol;
+    return new_state;
 
 
 #start of main method
 read_input("input.txt");
-best_move = minimax(board_mat, 0)
+best_move = minimax(board_mat, depth)
 print("Best move is ", best_move)
+print_board_state(update_board(best_move, board_mat, play_symbol))
 print("Done!");
