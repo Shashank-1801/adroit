@@ -1,11 +1,9 @@
 add something here
-3
+2
 MINIMAX
 O
 2
-1 8 23
-5 42 12
-26 30 9
-X..
-...
-...
+1 8
+5 42
+X.
+..
