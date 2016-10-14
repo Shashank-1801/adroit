@@ -1,6 +1,6 @@
-C3 Raid
+B3 Stake
 ..XX.
 ..XOX
-..XX.
-..XO.
+.X.O.
+..OO.
 .....

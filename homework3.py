@@ -2,7 +2,7 @@ import time
 import math
 
 pos_inf = float("inf")
-neg_inf = float("inf")
+neg_inf = float("-inf")
 value_mat = []
 board_mat = []
 n = 0
@@ -106,18 +106,20 @@ def alpha_max(board_state, depth, alpha, beta):
     ret_moves = []
     if (depth==0):
         steps +=1
-        return poss_moves[vals.index(max(vals))], max(vals), alpha, beta
+        return poss_moves[vals.index(max(vals))], max(vals)
     else:
         for n_board in new_board_states:
             print_board_state(n_board)
             ret_move, move_val = alpha_min(n_board, depth-1, alpha, beta)
-
-            alpha = max(alpha, max(vals))
-            if alpha > beta:
-                return poss_moves[ret_vals.index(max(ret_vals))], max(ret_vals)
-
             ret_vals.append(move_val);
             ret_moves.append(poss_moves[new_board_states.index(n_board)]);
+
+
+            alpha = max(alpha, max(ret_vals))
+            if alpha > beta:
+                print("pruning! **")
+                return poss_moves[ret_vals.index(alpha)], alpha
+
         print("max among ", ret_moves)
         print("max among ", ret_vals)
         return poss_moves[ret_vals.index(max(ret_vals))], max(ret_vals)
@@ -148,13 +150,15 @@ def alpha_min(board_state, depth, alpha, beta):
         for n_board in new_board_states:
             print_board_state(n_board)
             ret_move, move_val = alpha_max(n_board, depth - 1, alpha, beta)
-
-            beta = min(alpha, min(vals))
-            if alpha > beta:
-                return poss_moves[ret_vals.index(max(ret_vals))], max(ret_vals)
-
             ret_vals.append(move_val);
             ret_moves.append(poss_moves[new_board_states.index(n_board)]);
+
+            beta = min(beta, min(ret_vals))
+            if alpha > beta:
+                print("pruning! ***")
+                return poss_moves[ret_vals.index(beta)], beta
+
+
         print("min among ", ret_moves)
         print("min among ", ret_vals)
         return poss_moves[ret_vals.index(min(ret_vals))], min(ret_vals)
@@ -379,12 +383,12 @@ def file_output(move, board_state):
 start_time = time.time()
 read_input("input.txt");
 print()
-if mode == "MINMAX":
+if mode == "MINIMAX":
     best_move = minimax(board_mat, depth)
 elif mode == "ALPHABETA":
     best_move = alphabeta(board_mat, depth)
 else:
-    print("we shouldn't be here, incorrect mode")
+    print("we shouldn't be here, incorrect mode :", mode)
 print("Best move is ", best_move)
 print_board_state(update_board(best_move, board_mat, play_symbol))
 file_output(best_move,board_mat )
