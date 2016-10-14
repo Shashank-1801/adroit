@@ -1,12 +1,17 @@
 import time
+import math
 
+pos_inf = float("inf")
+neg_inf = float("inf")
 value_mat = []
 board_mat = []
 n = 0
 depth = 0
+mode = ""   #will get updated
 play_symbol = ".";  #will get changed
 opponent = ".";     #will get changed
 neutral = ".";
+steps = 0
 
 #MIN_MAX functions
 def minimax(board_state, depth):
@@ -15,6 +20,7 @@ def minimax(board_state, depth):
     return best_move
 
 def maxi(board_state, depth):
+    global steps
     print("In maxi with depth ", depth)
     poss_moves = find_possible_moves(board_state, play_symbol)
     my_board = duplicate_board_state(board_state)
@@ -29,6 +35,7 @@ def maxi(board_state, depth):
     ret_vals = []
     ret_moves = []
     if (depth==0):
+        steps +=1
         return poss_moves[vals.index(max(vals))], max(vals)
     else:
         for n_board in new_board_states:
@@ -42,6 +49,7 @@ def maxi(board_state, depth):
 
 
 def mini(board_state, depth):
+    global  steps
     print("In mini with depth ", depth)
     poss_moves = find_possible_moves(board_state, opponent)
     my_board = duplicate_board_state(board_state)
@@ -56,6 +64,7 @@ def mini(board_state, depth):
     ret_vals = []
     ret_moves = []
     if (depth == 0):
+        steps += 1
         return (poss_moves[vals.index(min(vals))], min(vals))
     else:
         for n_board in new_board_states:
@@ -69,8 +78,86 @@ def mini(board_state, depth):
 
 
 #Alpha-beta functions
-def alphabeta():
-    print("TO-DO");
+def alphabeta(board_state, depth):
+    alpha = neg_inf
+    beta = pos_inf
+    best_move, val = alpha_max(board_state, depth - 1, alpha, beta)
+    return best_move
+
+
+
+def alpha_max(board_state, depth, alpha, beta):
+    global steps
+    print("In maxi with depth ", depth)
+    alpha = alpha
+    beta = beta
+    #only aplha will be updated in alpha_max function
+    poss_moves = find_possible_moves(board_state, play_symbol)
+    my_board = duplicate_board_state(board_state)
+    vals=[]
+    new_board_states = []
+    for move in poss_moves:
+        new_board = update_board(move, my_board, play_symbol);
+        vals.append(get_game_val(new_board))
+        new_board_states.append(update_board(move, my_board, play_symbol))
+    print(poss_moves)
+    print(vals)
+    ret_vals = []
+    ret_moves = []
+    if (depth==0):
+        steps +=1
+        return poss_moves[vals.index(max(vals))], max(vals), alpha, beta
+    else:
+        for n_board in new_board_states:
+            print_board_state(n_board)
+            ret_move, move_val = alpha_min(n_board, depth-1, alpha, beta)
+
+            alpha = max(alpha, max(vals))
+            if alpha > beta:
+                return poss_moves[ret_vals.index(max(ret_vals))], max(ret_vals)
+
+            ret_vals.append(move_val);
+            ret_moves.append(poss_moves[new_board_states.index(n_board)]);
+        print("max among ", ret_moves)
+        print("max among ", ret_vals)
+        return poss_moves[ret_vals.index(max(ret_vals))], max(ret_vals)
+
+
+def alpha_min(board_state, depth, alpha, beta):
+    global  steps
+    print("In mini with depth ", depth)
+    alpha = alpha
+    beta = beta
+    # only beta will be updated in alpha_min function
+    poss_moves = find_possible_moves(board_state, opponent)
+    my_board = duplicate_board_state(board_state)
+    vals = []
+    new_board_states = []
+    for move in poss_moves:
+        new_board = update_board(move, my_board, opponent);
+        vals.append(get_game_val(new_board))
+        new_board_states.append(update_board(move, my_board, opponent))
+    print(poss_moves)
+    print(vals)
+    ret_vals = []
+    ret_moves = []
+    if (depth == 0):
+        steps +=1
+        return poss_moves[vals.index(min(vals))], min(vals)
+    else:
+        for n_board in new_board_states:
+            print_board_state(n_board)
+            ret_move, move_val = alpha_max(n_board, depth - 1, alpha, beta)
+
+            beta = min(alpha, min(vals))
+            if alpha > beta:
+                return poss_moves[ret_vals.index(max(ret_vals))], max(ret_vals)
+
+            ret_vals.append(move_val);
+            ret_moves.append(poss_moves[new_board_states.index(n_board)]);
+        print("min among ", ret_moves)
+        print("min among ", ret_vals)
+        return poss_moves[ret_vals.index(min(ret_vals))], min(ret_vals)
 
 
 def duplicate_board_state(board_state):
@@ -157,6 +244,7 @@ def index_to_pos(x, y):     #x=1 => 2  , y=2 => C
 #sets the values in the board
 def analyse(lines):
     global n;
+    global mode;
     global depth;
     global play_symbol;
     global opponent;
@@ -291,9 +379,14 @@ def file_output(move, board_state):
 start_time = time.time()
 read_input("input.txt");
 print()
-best_move = minimax(board_mat, depth)
+if mode == "MINMAX":
+    best_move = minimax(board_mat, depth)
+elif mode == "ALPHABETA":
+    best_move = alphabeta(board_mat, depth)
+else:
+    print("we shouldn't be here, incorrect mode")
 print("Best move is ", best_move)
 print_board_state(update_board(best_move, board_mat, play_symbol))
 file_output(best_move,board_mat )
 end_time = time.time()
-print("Done! time taken " , end_time - start_time);
+print("Done! time taken " , end_time - start_time, " after steps :", steps);
