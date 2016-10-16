@@ -274,10 +274,14 @@ def find_possible_moves(board_state, player_symbol):
     return next_possible_moves;
 
 
-def pos_to_index(pos):      #C2 => x=1, y=2
+
+def pos_to_index(pos):      #C2 => x=1, y=2 and E11 => x =10, y=4
     p = list(pos);
+    x_dash = ""
+    for l in range(1, len(p)):
+        x_dash += str(p[l])
     y = ord(p[0]) - ord("A");
-    x = int(pos[1])-1;
+    x = int(x_dash)-1;
     return x,y;
 
 
@@ -393,7 +397,7 @@ def file_output(move, board_state):
         type = "Raid"
     else:
         type = "Stake"
-    bs = update_board(best_move, board_mat, play_symbol)
+    bs = update_board(move, board_mat, play_symbol)
     fwrite = open("output.txt",'w')
     line = move + " "+ type + "\n"
     fwrite.write(line)
@@ -404,17 +408,19 @@ def file_output(move, board_state):
         fwrite.write(line + "\n")
     fwrite.close()
 
+def start_processing():
+    #start of main method
+    start_time = time.time()
+    read_input("input.txt");
+    #print()
+    if mode == "MINIMAX":
+        best_move = minimax(board_mat, depth)
+    else:
+        best_move = alphabeta(board_mat, depth)
+    print("Best move is ", best_move)
+    #print_board_state(update_board(best_move, board_mat, play_symbol))
+    file_output(best_move,board_mat )
+    end_time = time.time()
+    print("Done! time taken " , end_time - start_time, " after steps :", steps);
 
-#start of main method
-start_time = time.time()
-read_input("input.txt");
-#print()
-if mode == "MINIMAX":
-    best_move = minimax(board_mat, depth)
-else:
-    best_move = alphabeta(board_mat, depth)
-print("Best move is ", best_move)
-#print_board_state(update_board(best_move, board_mat, play_symbol))
-file_output(best_move,board_mat )
-end_time = time.time()
-#print("Done! time taken " , end_time - start_time, " after steps :", steps);
+start_processing()
