@@ -1,3 +1,4 @@
-B1 Raid
-OO
-XO
+C3 Stake
+X..
+...
+..O
