@@ -27,7 +27,7 @@ for x in range(100):
     except:
         failed.append(in_file)
 
-print(len(failed), "test cases failed")
 for x in failed:
     print(x)
+print(len(failed), "test cases failed")
 

@@ -83,7 +83,7 @@ def mini(board_state, depth):
         if len(poss_moves) < 1:
             return None, pos_inf
         # print("is raid:", is_raid(poss_moves[vals.index(max(vals))], my_board))
-        best_move, best_val = poss_moves[vals.index(max(vals))], max(vals)
+        best_move, best_val = poss_moves[vals.index(min(vals))], min(vals)
         if is_raid(best_move, my_board):
             # we will check if we have a better solution
             # print("Looking for better solution")
@@ -187,7 +187,7 @@ def alpha_min(board_state, depth, alpha, beta):
         if len(poss_moves) < 1:
             return None, pos_inf
         #print("is raid:", is_raid(poss_moves[vals.index(min(vals))], my_board))
-        best_move, best_val = poss_moves[vals.index(max(vals))], max(vals)
+        best_move, best_val = poss_moves[vals.index(min(vals))], min(vals)
         if is_raid(best_move, my_board):
             # we will check if we have a better solution
             #print("Looking for better solution")

@@ -1,4 +1,3 @@
 B1 Raid
-XX.
-.XO
-..O
+OO
+XO

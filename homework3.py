@@ -81,8 +81,9 @@ def mini(board_state, depth):
         steps += 1
         if len(poss_moves) < 1:
             return None, neg_inf
-        print("is raid:", is_raid(poss_moves[vals.index(max(vals))], my_board), poss_moves[vals.index(max(vals))])
-        best_move, best_val = poss_moves[vals.index(max(vals))], max(vals)
+        mov = poss_moves[vals.index(min(vals))]
+        print("is raid:", is_raid(mov, my_board), mov)
+        best_move, best_val = poss_moves[vals.index(min(vals))], min(vals)
         if is_raid(best_move, my_board):
             # we will check if we have a better solution
             print("Looking for better solution")
@@ -100,6 +101,8 @@ def mini(board_state, depth):
             ret_moves.append(poss_moves[new_board_states.index(n_board)]);
         print("min among ", ret_moves)
         print("min among ", ret_vals)
+        if len(poss_moves) < 1:
+            return None, neg_inf
         return poss_moves[ret_vals.index(min(ret_vals))], min(ret_vals)
 
 
@@ -164,7 +167,7 @@ def alpha_max(board_state, depth, alpha, beta):
 
 
 def alpha_min(board_state, depth, alpha, beta):
-    global  steps
+    global steps
     print("In mini with depth ", depth)
     alpha = alpha
     beta = beta
@@ -186,7 +189,7 @@ def alpha_min(board_state, depth, alpha, beta):
         if len(poss_moves) < 1:
             return None, pos_inf
         print("is raid:", is_raid(poss_moves[vals.index(min(vals))], my_board), poss_moves[vals.index(max(vals))])
-        best_move, best_val = poss_moves[vals.index(max(vals))], max(vals)
+        best_move, best_val = poss_moves[vals.index(min(vals))], min(vals)
         if is_raid(best_move, my_board):
             # we will check if we have a better solution
             print("Looking for better solution")
@@ -448,8 +451,9 @@ def start_processing():
 
 
 start_processing()
-'''
+
 print("--------------------------")
+'''
 move = "E11"
 print(pos_to_index(move))
 print_board_state(update_board(move, board_mat, play_symbol))
@@ -458,4 +462,7 @@ move = "E1"
 print(pos_to_index(move))
 print_board_state(update_board(move, board_mat, play_symbol))
 print(get_game_val(update_board(move, board_mat, play_symbol)))
+move = "E11"
+a, b = pos_to_index(move)
+print(index_to_pos(a,b))
 '''
