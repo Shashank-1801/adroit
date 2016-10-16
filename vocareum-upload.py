@@ -13,11 +13,13 @@ opponent = ".";     #will get changed
 neutral = ".";
 steps = 0
 
+
 #MIN_MAX functions
 def minimax(board_state, depth):
     #let's start the recursion for the moves ;)
     best_move, val = maxi(board_state, depth-1)
     return best_move
+
 
 def maxi(board_state, depth):
     global steps
@@ -35,8 +37,19 @@ def maxi(board_state, depth):
     ret_vals = []
     ret_moves = []
     if (depth==0):
-        steps +=1
-        return poss_moves[vals.index(max(vals))], max(vals)
+        steps += 1
+        # print("is raid:", is_raid(poss_moves[vals.index(max(vals))], my_board))
+        best_move, best_val = poss_moves[vals.index(max(vals))], max(vals)
+        if is_raid(best_move, my_board):
+            # we will check if we have a better solution
+            # print("Looking for better solution")
+            for indexx in range(len(poss_moves)):
+                if (vals[indexx] == best_val and is_raid(poss_moves[indexx], my_board) == False):
+                    best_move = poss_moves[indexx]
+                    best_val = vals[indexx]
+        return best_move, best_val
+
+
     else:
         for n_board in new_board_states:
             #print_board_state(n_board)
@@ -49,7 +62,7 @@ def maxi(board_state, depth):
 
 
 def mini(board_state, depth):
-    global  steps
+    global steps
     #print("In mini with depth ", depth)
     poss_moves = find_possible_moves(board_state, opponent)
     my_board = duplicate_board_state(board_state)
@@ -65,7 +78,17 @@ def mini(board_state, depth):
     ret_moves = []
     if (depth == 0):
         steps += 1
-        return (poss_moves[vals.index(min(vals))], min(vals))
+        # print("is raid:", is_raid(poss_moves[vals.index(max(vals))], my_board))
+        best_move, best_val = poss_moves[vals.index(max(vals))], max(vals)
+        if is_raid(best_move, my_board):
+            # we will check if we have a better solution
+            # print("Looking for better solution")
+            for indexx in range(len(poss_moves)):
+                if (vals[indexx] == best_val and is_raid(poss_moves[indexx], my_board) == False):
+                    best_move = poss_moves[indexx]
+                    best_val = vals[indexx]
+        return best_move, best_val
+
     else:
         for n_board in new_board_states:
             #print_board_state(n_board)
@@ -106,7 +129,17 @@ def alpha_max(board_state, depth, alpha, beta):
     ret_moves = []
     if (depth==0):
         steps +=1
-        return poss_moves[vals.index(max(vals))], max(vals)
+        #print("is raid:", is_raid(poss_moves[vals.index(max(vals))], my_board))
+        best_move, best_val =  poss_moves[vals.index(max(vals))], max(vals)
+        if is_raid(best_move, my_board):
+            #we will check if we have a better solution
+            #print("Looking for better solution")
+            for indexx in range(len(poss_moves)):
+                if (vals[indexx] == best_val and is_raid(poss_moves[indexx], my_board)==False):
+                    best_move = poss_moves[indexx]
+                    best_val = vals[indexx]
+        return best_move, best_val
+
     else:
         for n_board in new_board_states:
             #print_board_state(n_board)
@@ -117,7 +150,7 @@ def alpha_max(board_state, depth, alpha, beta):
 
             alpha = max(alpha, max(ret_vals))
             if alpha > beta:
-                print("pruning! **")
+                #print("pruning! **")
                 return poss_moves[ret_vals.index(alpha)], alpha
 
         #print("max among ", ret_moves)
@@ -145,7 +178,16 @@ def alpha_min(board_state, depth, alpha, beta):
     ret_moves = []
     if (depth == 0):
         steps +=1
-        return poss_moves[vals.index(min(vals))], min(vals)
+        #print("is raid:", is_raid(poss_moves[vals.index(min(vals))], my_board))
+        best_move, best_val = poss_moves[vals.index(max(vals))], max(vals)
+        if is_raid(best_move, my_board):
+            # we will check if we have a better solution
+            #print("Looking for better solution")
+            for indexx in range(len(poss_moves)):
+                if (vals[indexx] == best_val and is_raid(poss_moves[indexx], my_board)==False):
+                    best_move = poss_moves[indexx]
+                    best_val = vals[indexx]
+        return best_move, best_val
     else:
         for n_board in new_board_states:
             #print_board_state(n_board)
@@ -155,7 +197,7 @@ def alpha_min(board_state, depth, alpha, beta):
 
             beta = min(beta, min(ret_vals))
             if alpha > beta:
-                print("pruning! ***")
+                #print("pruning! ***")
                 return poss_moves[ret_vals.index(beta)], beta
 
 
@@ -184,7 +226,7 @@ def get_pos_value(pos):
     total_val = value_mat[x][y];
     neighbours = get_neighbours(pos);
     for s in neighbours:
-        #print(index_to_pos(s[0],s[1]), value_mat[s[0]][s[1]]);
+        ##print(index_to_pos(s[0],s[1]), value_mat[s[0]][s[1]]);
         if(board_mat[s[0]][s[1]] == opponent):
             total_val += value_mat[s[0]][s[1]];
     return total_val;
@@ -264,34 +306,35 @@ def analyse(lines):
     """
     num_lines = len(lines);
     n = int(lines[0]);
-    print("Size of board is ", n, "x", n );
+    #print("Size of board is ", n, "x", n );
     mode = str(lines[1]).strip("\n");
-    print("Mode of game play is ", mode);
+    #print("Mode of game play is ", mode);
     play_symbol = str(lines[2]).strip("\n");
-    print("Playing as " , play_symbol);
+    #print("Playing as " , play_symbol);
     if(play_symbol=="X"):
         opponent = "O";
     else:
         opponent = "X";
     depth = int(str(lines[3]).strip("\n"))
-    print("depth of search is ", depth);
-    #print("Cell values are: ");
+    #print("depth of search is ", depth);
+    ##print("Cell values are: ");
     value_mat = [[None]*n for _ in range(n)];
     for i in range(n):
         vals = lines[4+i].split(" ");
         for j in range(n):
             value_mat[i][j] = int(vals[j]);
-            #print(value_mat[i][j] , end="\t");
-        #print();
+            ##print(value_mat[i][j] , end="\t");
+        ##print();
 
-    #print("Board state is: ");
+    ##print("Board state is: ");
     board_mat = [[None]*n for _ in range(n)];
     for i in range(n):
         vals = list(lines[4 + n + i]);
         for j in range(n):
             board_mat[i][j] = str(vals[j]).strip("\n");
-            #print(board_mat[i][j], end="\t");
-        #print();
+            ##print(board_mat[i][j], end="\t");
+        ##print();
+
 
 
 def read_input(file):
@@ -302,7 +345,7 @@ def read_input(file):
         #print_board_state(board_mat);
         #get_board_value();
     except:
-        print("***Some error***");
+        print("***Invalid file stucture");
         print(read_line)
 
 
@@ -322,10 +365,10 @@ def update_board(move, board_state, player_symbol):
             break;
     if raid == True:
         for s in neighbours:
-            # print(index_to_pos(s[0],s[1]), value_mat[s[0]][s[1]]);
+            #print(index_to_pos(s[0],s[1]), value_mat[s[0]][s[1]]);
             if (new_state[s[0]][s[1]] == other):
-                new_state[s[0]][s[1]] = player_symbol;
-    return new_state;
+                new_state[s[0]][s[1]] = player_symbol
+    return new_state
 
 
 def is_raid(move, board):
@@ -365,15 +408,13 @@ def file_output(move, board_state):
 #start of main method
 start_time = time.time()
 read_input("input.txt");
-print()
+#print()
 if mode == "MINIMAX":
     best_move = minimax(board_mat, depth)
-elif mode == "ALPHABETA":
-    best_move = alphabeta(board_mat, depth)
 else:
-    print("we shouldn't be here, incorrect mode")
+    best_move = alphabeta(board_mat, depth)
 print("Best move is ", best_move)
 #print_board_state(update_board(best_move, board_mat, play_symbol))
 file_output(best_move,board_mat )
 end_time = time.time()
-print("Done! time taken " , end_time - start_time, " after steps :", steps);
+#print("Done! time taken " , end_time - start_time, " after steps :", steps);
