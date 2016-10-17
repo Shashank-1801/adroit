@@ -409,10 +409,14 @@ def file_output(move, board_state):
     fwrite.close()
 
 def start_processing():
+    global depth
     #start of main method
     start_time = time.time()
     read_input("input.txt");
     #print()
+    number_moves = len(find_possible_moves(board_mat, play_symbol))
+    if depth > number_moves:
+        depth = number_moves
     if mode == "MINIMAX":
         best_move = minimax(board_mat, depth)
     else:
